@@ -14,8 +14,7 @@ source("ui.R", local = TRUE)
 ## server
 
 server <- function(input, output, session) {
-  
-## Set up data  
+  ## Set up data
   
   Score <- reactive({
     scr <- input$scr
@@ -39,16 +38,36 @@ server <- function(input, output, session) {
     trm <- input$trm
   })
   
-
   
-##### Analysis #####  
-
-## descriptives - from onewaytests 
   
-
-  output$descStats2 <- output$descStats1 <- renderPrint({ describe(Score() ~ Group(), df()) })
+  ##### Analysis #####
   
-## Run the ANOVA omnibus test
+  ## descriptives - from onewaytests
+  
+  
+  output$descStats2 <-
+    output$descStats1 <-
+    renderPrint({
+      describe(Score() ~ Group(), df())
+    })
+  
+  
+  # Robust Bootstrapped & trimmed means
+  
+  robustANOVA <-
+    reactive({
+      t1way(Score() ~ Group(), df(), tr = trim(), nboot = 10)
+    })
+  output$robustANOVA <- renderPrint(robustANOVA())
+  
+  robustPostHoc <-
+    reactive({
+      lincon(Score() ~ Group(), df(), tr = trim(), nboot = 10)
+    })
+  output$robustPostHoc <- renderPrint(robustPostHoc())
+  
+  
+  ## Run the ANOVA omnibus test
   
   res.aov <- reactive({
     aov(Score() ~ Group(), data = df())
@@ -57,8 +76,8 @@ server <- function(input, output, session) {
     summary.lm(res.aov())
   })
   
-## Checking Assumptions
-## normality of residuals shapiro-wilks
+  ## Checking Assumptions
+  ## normality of residuals shapiro-wilks
   
   aov_residuals <- reactive({
     residuals(object = res.aov())
@@ -68,14 +87,14 @@ server <- function(input, output, session) {
       shapiro.test(x = aov_residuals())
     })
   
-## normality of each group
- 
+  ## normality of each group
+  
   output$shapTestG <-
     renderPrint({
       nor.test(Score() ~ Group(), df())
     })
   
-## Nonparametric
+  ## Nonparametric
   
   source("function.R", local = TRUE)
   
@@ -94,20 +113,26 @@ server <- function(input, output, session) {
     nonPar()
   })
   
-## Levene's test for homogeneity
-
-   output$leveneT <- renderPrint({
+  ## Levene's test for homogeneity
+  
+  output$leveneT <- renderPrint({
     homog.test(Score() ~ Group(), df())
   })
   
-# homogeneity of variance
-
-output$WelchT <- renderPrint({welch.test(Score() ~ Group(), df(), rate = .1)})
+  # homogeneity of variance
   
-## Pairwise comparisons
-
-output$scheffe <- renderPrint({ScheffeTest(x = res.aov(), which = "Group()")})
-
+  output$WelchT <-
+    renderPrint({
+      welch.test(Score() ~ Group(), df(), rate = .1)
+    })
+  
+  ## Pairwise comparisons
+  
+  output$scheffe <-
+    renderPrint({
+      ScheffeTest(x = res.aov(), which = "Group()")
+    })
+  
   output$tukeyHSD <- renderPrint({
     TukeyHSD(res.aov())
   })
@@ -116,18 +141,10 @@ output$scheffe <- renderPrint({ScheffeTest(x = res.aov(), which = "Group()")})
       pairwise.t.test(df()$Score, df()$Group, p.adjust.method = pwMethod())
     })
   
-# Robust Bootstrapped & trimme means
-
-robustANOVA <-  reactive({t1way(Score() ~ Group(), df(), tr = trim(), nboot = 10)})
-output$robustANOVA <- renderPrint(robustANOVA())
-
-robustPostHoc <-  reactive({lincon(Score() ~ Group(), df(), tr = trim(), nboot = 10)})
-output$robustPostHoc <- renderPrint(robustPostHoc())
-
-
-## Graphs
-## assumptions
-
+  
+  ## Graphs
+  ## assumptions
+  
   ggP <-  reactive({
     ggplot(df(), aes(sample = Score())) +
       stat_qq() +
@@ -145,9 +162,9 @@ output$robustPostHoc <- renderPrint(robustPostHoc())
   output$gNorm <- renderPlot({
     plot(res.aov(), 2)
   })
-
-## Vizualise data   
-# Violin /boxplot 
+  
+  ## Vizualise data
+  # Violin /boxplot
   
   vplot <- reactive({
     ggplot(df(), aes(x = Group(), y = Score())) +
@@ -159,7 +176,7 @@ output$robustPostHoc <- renderPrint(robustPostHoc())
     vplot()
   })
   
-# dotplot
+  # dotplot
   
   dots <- reactive({
     ggplot(df(), aes(x = Group(), y = Score())) +
@@ -185,25 +202,39 @@ output$robustPostHoc <- renderPrint(robustPostHoc())
     dots()
   })
   
-#effect size calculator
-
+  #effect size calculator
+  
   observeEvent(eventExpr = input[["submit_data"]],
                handlerExpr = {
-m1 <- reactive({m1 <- input$m1
-as.numeric(m1)})
-m2 <- reactive({m2 <- input$m2
-as.numeric(m2)})
-sd1 <- reactive({sd1 <- input$sd1
-as.numeric(sd1)})
-sd2 <- reactive({sd2 <- input$sd2
-as.numeric(sd2)})
-n1 <- reactive({n1 <- input$n1
-as.numeric(n1)})
-n2 <- reactive({n2 <- input$n2
-as.numeric(n2)})
-
-output$ES <- renderPrint({mes(m1(), m2(), sd1(), sd2(), n1(), n2())})
-               }
-)
+                 m1 <- reactive({
+                   m1 <- input$m1
+                   as.numeric(m1)
+                 })
+                 m2 <- reactive({
+                   m2 <- input$m2
+                   as.numeric(m2)
+                 })
+                 sd1 <- reactive({
+                   sd1 <- input$sd1
+                   as.numeric(sd1)
+                 })
+                 sd2 <- reactive({
+                   sd2 <- input$sd2
+                   as.numeric(sd2)
+                 })
+                 n1 <- reactive({
+                   n1 <- input$n1
+                   as.numeric(n1)
+                 })
+                 n2 <- reactive({
+                   n2 <- input$n2
+                   as.numeric(n2)
+                 })
+                 
+                 output$ES <-
+                   renderPrint({
+                     mes(m1(), m2(), sd1(), sd2(), n1(), n2())
+                   })
+               })
 }
 shinyApp(ui, server)
