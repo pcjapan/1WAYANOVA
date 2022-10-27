@@ -73,10 +73,14 @@ ui <- fluidPage(
         column(
           6,
           h3("Show the following tests"),
-          radioGroupButtons(
-            "TestID",
-            "Check the tests you wish to display", 
-            c("Welch's Test" = 1, "Non-parametric" = 2),
+          awesomeCheckbox(
+            "welch",
+            "Welch's Test", 
+            status = "info"
+          ),
+          awesomeCheckbox(
+            "nonPar",
+            "Nonparametric Tests", 
             status = "info"
           )
         )
@@ -86,7 +90,7 @@ ui <- fluidPage(
       tabPanel(
         "Results",
         tags$h3("Basic Statistics"),
-        verbatimTextOutput("descStats"),
+        verbatimTextOutput("descStats1"),
         tags$h3("Checking Assumptions"),
         verbatimTextOutput("shapTest"),
         verbatimTextOutput("shapTestG"),
@@ -98,13 +102,13 @@ ui <- fluidPage(
         verbatimTextOutput("pwtt"),
         verbatimTextOutput("scheffe"),
         conditionalPanel(
-          condition = "input.TestID == 1",
+          condition = "input.welch == 1",
           tags$h2("Alternative Tests"),
           tags$p("If Levene\'s test fails, then an alternative to the standard ANOVA test is recommended. Welch's test is one possibility"),
           verbatimTextOutput("WelchT"),
           ),
         conditionalPanel(
-          condition = "input.TestID == 2", 
+          condition = "input.nonPar == 1", 
           tags$h3("Non-parametric Tests"),
           verbatimTextOutput("nonPar"),
           tags$p("Games-Howell Post-hoc Test"),
@@ -131,23 +135,49 @@ ui <- fluidPage(
       ),
       tabPanel(
         "Effect Size Calculation",
-        textInput(inputId = "m1", label = NULL, value = "12.5",  width = "12ch"),
-        textInput(inputId = "sd1", label = NULL, value = "1.76",  width = "12ch"),
-        textInput(inputId = "n1", label = NULL, value = "30",  width = "12ch"),
-        textInput(inputId = "m2", label = NULL, value = "17.9",  width = "12ch"),
-        textInput(inputId = "sd2", label = NULL, value = "1.80",  width = "12ch"),
-        textInput(inputId = "n2", label = NULL, value = "30",  width = "12ch"),
+        tags$h3("Descriptive Statistics"),
+        fluidRow(
+          column
+          (8,
+        verbatimTextOutput("descStats2"),
+            tags$p("To calculate the effect size for the difference between your groups, enter the mean (M), standard deviation (SD), and sample size (SD) for each group in the input boxes below. Clicking <code>Calculate</code> will generate the effect size data.")
+          )),
+        fluidRow(
+          column
+           (8,
+             div(style="display:inline-block",
+                textInput(inputId = "m1", label = "M 1", width = "12ch")),
+            div(style="display:inline-block",
+                textInput(inputId = "sd1", label = "SD 1", width = "12ch")),
+            div(style="display:inline-block",
+                textInput(inputId = "n1", label = "N 1", width = "12ch")),),
+        ),
+       fluidRow(
+        column 
+        ( 8,
+          div(style="display:inline-block",
+             textInput(inputId = "m2", label = "M 2", width = "12ch")),
+         div(style="display:inline-block",
+             textInput(inputId = "sd2", label = "SD 2", width = "12ch")),
+         div(style="display:inline-block",
+        textInput(inputId = "n2", label = "N2", width = "12ch"),),
+       ),
+      fluidRow( 
+        column(
+          8,
         actionButton(
           inputId = "submit_data",
-          label = "Submit",
+          label = "Calculate",
           lib = "glyphicon",
           icon = icon("circle-play")
         ),
+        tags$hr(),
         verbatimTextOutput("ES"),
+        ),
+      ),
       ),
     ))
   ),
 
-  
-  
-  )
+ ),
+)

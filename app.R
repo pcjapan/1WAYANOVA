@@ -46,10 +46,7 @@ server <- function(input, output, session) {
 ## descriptives - from onewaytests 
   
 
-  output$descStats <-
-    renderPrint({
-      describe(Score() ~ Group(), df())
-    })
+  output$descStats2 <- output$descStats1 <- renderPrint({ describe(Score() ~ Group(), df()) })
   
 ## Run the ANOVA omnibus test
   
