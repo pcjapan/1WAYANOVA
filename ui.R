@@ -47,9 +47,15 @@ ui <- fluidPage(
             "Benjamini & Hochberg (FDR)" = "BH",
             "Benjamini & Yekutieli" = "BY",
             "None" = "none"
+<<<<<<< HEAD
           ),
           options = list(style = "btn-primary"),
         )
+=======
+          )
+        ),
+        options = list(style = "btn-primary")
+>>>>>>> cbf2e28c7af11ff1c8dbc6ceb87f210dcc62b0c9
       ),),
       fluidRow(
         column(
@@ -106,10 +112,16 @@ ui <- fluidPage(
         verbatimTextOutput("scheffe"),
         conditionalPanel(
           condition = "input.welch == 1",
+<<<<<<< HEAD
           tags$h3("Welch's Tests"),
           tags$p(
             "If Levene\'s test fails, then an alternative to the standard ANOVA test is recommended.", br(),
             "While reporting the results of the robust test is recommended, Welch's test is one possibility"
+=======
+          tags$h3("Alternative Tests"),
+          tags$p(
+            "If Levene\'s test fails, then an alternative to the standard ANOVA test is recommended. Welch's test is one possibility"
+>>>>>>> cbf2e28c7af11ff1c8dbc6ceb87f210dcc62b0c9
           ),
           verbatimTextOutput("WelchT"),
         ),
@@ -142,7 +154,11 @@ ui <- fluidPage(
                    8,
                    verbatimTextOutput("descStats2"),
                    tags$p(
+<<<<<<< HEAD
                      "To calculate the effect size for the difference between your groups, enter the mean (M), standard deviation (SD), and sample size (SD) for each group in the input boxes below. Clicking the", code("Calculate"), " button will generate the effect size data."
+=======
+                     "To calculate the effect size for the difference between your groups, enter the mean (M), standard deviation (SD), and sample size (SD) for each group in the input boxes below. Clicking Calculate will generate the effect size data."
+>>>>>>> cbf2e28c7af11ff1c8dbc6ceb87f210dcc62b0c9
                    )
                  )),
         fluidRow(column
@@ -192,6 +208,7 @@ ui <- fluidPage(
                  fluidRow(
                    column(
                      8,
+<<<<<<< HEAD
                      actionBttn(
                        inputId = "submit_data",
                        label = "Calculate",
@@ -201,6 +218,13 @@ ui <- fluidPage(
                        color = "primary",
                        size = "sm",
                        
+=======
+                     actionButton(
+                       inputId = "submit_data",
+                       label = "Calculate",
+                       lib = "glyphicon",
+                       icon = icon("circle-play")
+>>>>>>> cbf2e28c7af11ff1c8dbc6ceb87f210dcc62b0c9
                      ),
                      tags$hr(),
                      verbatimTextOutput("ES"),
