@@ -38,6 +38,10 @@ server <- function(input, output, session) {
     trm <- input$trm
   })
   
+  btstpN <- reactive({
+    trm <- input$btsn
+  })
+  
   
   
   ##### Analysis #####
@@ -56,16 +60,21 @@ server <- function(input, output, session) {
   
   robustANOVA <-
     reactive({
-      t1way(Score() ~ Group(), df(), tr = trim(), nboot = 10)
+      t1way(Score() ~ Group(), df(), tr = trim(), nboot = btstpN())
     })
   output$robustANOVA <- renderPrint(robustANOVA())
   
+  output$robustANOVAinfo <- renderPrint({cat(
+    "Bootstrapped 1-way ANOVA for independent samples with", btstpN(), " bootstrapped samples and ", trim(), " trimmed mean." )})
+    
   robustPostHoc <-
     reactive({
-      lincon(Score() ~ Group(), df(), tr = trim(), nboot = 10)
+      lincon(Score() ~ Group(), df(), tr = trim(), nboot = btstpN(), method = pwMethod())
     })
   output$robustPostHoc <- renderPrint(robustPostHoc())
   
+  output$robustPosthocinfo <- renderPrint({cat(
+    "Bootstrapped Post-hoc tests with", btstpN(), "bootstrapped samples and", trim(), "trimmed means, using the", pwMethod(), "adjustment method." )})
   
   ## Run the ANOVA omnibus test
   
@@ -141,6 +150,8 @@ server <- function(input, output, session) {
       pairwise.t.test(df()$Score, df()$Group, p.adjust.method = pwMethod())
     })
   
+  output$pairwise.t.adjustment <- renderPrint({cat(
+    "Post-hoc tests using the", pwMethod(), "adjustment method." )})
   
   ## Graphs
   ## assumptions
@@ -167,38 +178,42 @@ server <- function(input, output, session) {
   # Violin /boxplot
   
   vplot <- reactive({
-    ggplot(df(), aes(x = Group(), y = Score())) +
+    ggplot(df(), aes(
+      x = Group(),
+      y = Score(),
+      fill = Group()
+    )) +
       geom_violin() +
       geom_boxplot(width = .1) +
-      theme_minimal()
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle("Violin Plot of Data")
   })
-  output$plot1 <- renderPlot({
+  output$vp <- renderPlot({
     vplot()
   })
   
   # dotplot
   
   dots <- reactive({
-    ggplot(df(), aes(x = Group(), y = Score())) +
-      stat_summary(
-        fun = median,
-        fun.min = median,
-        fun.max = median,
-        geom = "crossbar",
-        width = 0.6,
-        size = 0.4,
-        color = "black",
-        alpha = 0.6
-      ) +
+    ggplot(df(), aes(
+      x = Group(),
+      y = Score(),
+      color = Group()
+    )) +
+      geom_boxplot(width = .3, color = "darkgoldenrod4") +
       geom_dotplot(
         binaxis = "y",
-        binwidth = 0.3,
+        binwidth = 0.5,
         stackdir = "center",
-        stackratio = 1
+        stackratio = 1,
+        fill = NA
       ) +
-      theme_minimal()
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle("Dotplot of Data")
   })
-  output$plot2 <- renderPlot({
+  output$dp <- renderPlot({
     dots()
   })
   

@@ -47,15 +47,9 @@ ui <- fluidPage(
             "Benjamini & Hochberg (FDR)" = "BH",
             "Benjamini & Yekutieli" = "BY",
             "None" = "none"
-<<<<<<< HEAD
           ),
           options = list(style = "btn-primary"),
         )
-=======
-          )
-        ),
-        options = list(style = "btn-primary")
->>>>>>> cbf2e28c7af11ff1c8dbc6ceb87f210dcc62b0c9
       ),),
       fluidRow(
         column(
@@ -73,10 +67,10 @@ ui <- fluidPage(
           sliderInput(
             "btsn",
             label = "Set the number of bootstrap samples",
-            value = 5000,
-            step = 100,
+            value = 600,
+            step = 50,
             min = 200,
-            max = 5000
+            max = 1000
           ),
         ),
       ),
@@ -89,39 +83,47 @@ ui <- fluidPage(
         awesomeCheckbox("nonPar",
                         "Nonparametric Tests",
                         status = "info")
+      )),
+      fluidRow(column(
+        6,
+        h3("Show the following graphs"),
+        p("These will be displayed under the", em("Exploring Data"), "tab.", class = "text-primary"),
+        awesomeCheckbox("vp",
+                        "Violin Plot",
+                        status = "info"),
+        awesomeCheckbox("dp",
+                        "Dotplot",
+                        status = "info")
       ))
     ),
     mainPanel(tabsetPanel(
       tabPanel(
         "Results",
-        tags$h3("Basic Statistics"),
+        tags$h3("Descriptive Statistics"),
         verbatimTextOutput("descStats1"),
         tags$h3("Checking Assumptions"),
         verbatimTextOutput("shapTest"),
         verbatimTextOutput("shapTestG"),
         verbatimTextOutput("leveneT"),
         tags$h3("Robust ANOVA"),
+        htmlOutput("robustANOVAinfo", class = "text-primary"),
         verbatimTextOutput("robustANOVA"),
+        htmlOutput("robustPosthocinfo", class = "text-primary"),
         verbatimTextOutput("robustPostHoc"),
         tags$h3("Standard ANOVA"),
         verbatimTextOutput("res.aov"),
         tags$h3("Post-hoc Test Result"),
+        htmlOutput("pairwise.t.adjustment", class = "text-primary"),
         verbatimTextOutput("pwtt"),
-        tags$h4("Alternatives"),
+        tags$h3("Alternatives"),
         verbatimTextOutput("tukeyHSD"),
         verbatimTextOutput("scheffe"),
         conditionalPanel(
           condition = "input.welch == 1",
-<<<<<<< HEAD
           tags$h3("Welch's Tests"),
           tags$p(
             "If Levene\'s test fails, then an alternative to the standard ANOVA test is recommended.", br(),
             "While reporting the results of the robust test is recommended, Welch's test is one possibility"
-=======
-          tags$h3("Alternative Tests"),
-          tags$p(
-            "If Levene\'s test fails, then an alternative to the standard ANOVA test is recommended. Welch's test is one possibility"
->>>>>>> cbf2e28c7af11ff1c8dbc6ceb87f210dcc62b0c9
           ),
           verbatimTextOutput("WelchT"),
         ),
@@ -136,16 +138,28 @@ ui <- fluidPage(
       
       tabPanel(
         "Exploring data",
-        plotOutput("ggP"),
-        plotOutput("homV"),
-        plotOutput("gNorm"),
-        plotOutput("plot1"),
-        plotOutput("plot2"),
-        plotOutput("plot3"),
+        fluidRow(
+          h3("Check Assumptions"),
+          p("The following graphs show how your data is distributed. Check to see if there are any possible problems.", class = "text-primary"),
+          plotOutput("ggP"),
+          plotOutput("homV"),
+          plotOutput("gNorm"),
+        ),
+        conditionalPanel(
+          condition = "input.vp == 1",
+          fluidRow( 
+            h3("Violin Plot"),
+            plotOutput("vp"),
+            ),
+          ),
+        conditionalPanel(
+          condition = "input.dp == 1",
+          fluidRow(
+            h3("Dotplot"),
+            plotOutput("dp"),
+            ),
+          ),
       ),
-      
-      tabPanel("Instructions",
-               includeHTML("include.html")),
       tabPanel(
         "Effect Size Calculation",
         tags$h3("Descriptive Statistics"),
@@ -154,11 +168,7 @@ ui <- fluidPage(
                    8,
                    verbatimTextOutput("descStats2"),
                    tags$p(
-<<<<<<< HEAD
                      "To calculate the effect size for the difference between your groups, enter the mean (M), standard deviation (SD), and sample size (SD) for each group in the input boxes below. Clicking the", code("Calculate"), " button will generate the effect size data."
-=======
-                     "To calculate the effect size for the difference between your groups, enter the mean (M), standard deviation (SD), and sample size (SD) for each group in the input boxes below. Clicking Calculate will generate the effect size data."
->>>>>>> cbf2e28c7af11ff1c8dbc6ceb87f210dcc62b0c9
                    )
                  )),
         fluidRow(column
@@ -208,7 +218,6 @@ ui <- fluidPage(
                  fluidRow(
                    column(
                      8,
-<<<<<<< HEAD
                      actionBttn(
                        inputId = "submit_data",
                        label = "Calculate",
@@ -218,20 +227,15 @@ ui <- fluidPage(
                        color = "primary",
                        size = "sm",
                        
-=======
-                     actionButton(
-                       inputId = "submit_data",
-                       label = "Calculate",
-                       lib = "glyphicon",
-                       icon = icon("circle-play")
->>>>>>> cbf2e28c7af11ff1c8dbc6ceb87f210dcc62b0c9
                      ),
                      tags$hr(),
                      verbatimTextOutput("ES"),
                    ),
                  ),),
-      )
-    )),
-    
+      ),
+      tabPanel("Instructions",
+               includeHTML("include.html")),
+    )
+    ),
   ),
 )
